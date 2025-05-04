@@ -1,7 +1,6 @@
 from abbyy_config import ABBYY_APP_ID, ABBYY_PASSWORD, OCR_API_URL, TASK_STATUS_URL
 import base64
 import requests
-import time
 
 def get_auth_header():
     credentials = f"{ABBYY_APP_ID}:{ABBYY_PASSWORD}"
@@ -33,7 +32,6 @@ def get_task_status(task_id):
             result_url = data['resultUrls'][0]
             result = requests.get(result_url)
             return result.text if result.status_code == 200 else None
-
         elif status == 'InProgress':
             print("OCR en cours...")
         elif status == 'Queued':
