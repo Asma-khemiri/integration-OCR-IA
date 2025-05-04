@@ -1,9 +1,8 @@
-
 import google.generativeai as genai
 import json
 import re
 
-# Configurer Gemini
+# Configure Gemini
 genai.configure(api_key="AIzaSyAFbWVpbTwkIYvOh9QDkMRu36M3eIiEYig")
 
 def generate_gemini_prompt(text):
@@ -13,14 +12,15 @@ You are a smart assistant that extracts structured data from the OCR content of 
 Your goal is to extract the following fields:
 
 - "siret_number" (the French SIRET number)
-    - "invoice_number" (the invoice number)
-    - "TVA Number" (the TVA number)
-    - "invoice_date" (the date of the invoice, ideally in dd/mm/yyyy format)
-    - "TVA" (the VAT amount)
-    - "HT" (the amount excluding tax)
-    - "TTC" (the total amount with tax)
-    - "client_name" (the client's name)
-    - "currency" (the currency of the amounts)
+- "invoice_number" (the invoice number)
+- "TVA Number" (the VAT number)
+- "invoice_date" (the date of the invoice, ideally in dd/mm/yyyy format)
+- "TVA" (the VAT amount)
+- "HT" (the amount excluding tax)
+- "TTC" (the total amount including tax)
+- "client_name" (the client's name)
+- "currency" (the currency of the amounts)
+
 Guidelines:
 - The invoice text may be written in various languages (French, English, Spanish, Arabic, etc.). Detect the language automatically.
 - Invoice formats may vary (columns, paragraphs, informal layouts).
@@ -38,7 +38,6 @@ def analyze_invoice_with_gemini(text):
     model = genai.GenerativeModel(model_name="models/gemini-1.5-pro")
     prompt = generate_gemini_prompt(text)
     response = model.generate_content(prompt)
-
     return response.text
 
 def clean_extracted_data(data):
@@ -51,7 +50,7 @@ def clean_extracted_data(data):
 
         match = re.search(r"(\d+(?:[.,]\d{1,3})?)\s*([^\d\s]+)?", value)
         if match:
-            amount = match.group(1).replace(",", ".")  # remplacer virgule par point
+            amount = match.group(1).replace(",", ".")
             currency = match.group(2) if match.group(2) else None
             return amount, currency
         return value, None
@@ -74,13 +73,12 @@ def process_gemini_json_response(response_text):
     response_text = re.sub(r"```json\s*|\s*```", "", response_text).strip()
     try:
         parsed = json.loads(response_text)
-        print("\n JSON brut reçu de Gemini:\n", parsed)
+        print("\nRaw JSON received from Gemini:\n", parsed)
         cleaned = clean_extracted_data(parsed)
         return cleaned
     except json.JSONDecodeError:
-        print("\nErreur JSON :\n", response_text)
+        print("\nJSON parsing error:\n", response_text)
         return None
-
 
 def process_invoice_text(text):
     raw_response = analyze_invoice_with_gemini(text)

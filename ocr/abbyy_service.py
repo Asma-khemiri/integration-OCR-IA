@@ -14,10 +14,10 @@ def send_image_to_abbyy(image_path):
         response = requests.post(OCR_API_URL, headers=get_auth_header(), params=params, files=files)
 
     if response.status_code == 200:
-        print("Image envoyée avec succès.")
+        print("Image sent successfully.")
         return response.json().get('taskId')
     else:
-        print(f"Erreur envoi image [{response.status_code}]: {response.text}")
+        print(f"Image upload error [{response.status_code}]: {response.text}")
         return None
 
 def get_task_status(task_id):
@@ -33,11 +33,11 @@ def get_task_status(task_id):
             result = requests.get(result_url)
             return result.text if result.status_code == 200 else None
         elif status == 'InProgress':
-            print("OCR en cours...")
+            print("OCR processing in progress...")
         elif status == 'Queued':
-            print("En file d'attente...")
+            print("Task is in queue...")
         else:
-            print(f"Erreur statut : {status}")
+            print(f"Unexpected status: {status}")
     else:
-        print(f"Erreur status API : {response.status_code}")
+        print(f"API status error: {response.status_code}")
     return None
