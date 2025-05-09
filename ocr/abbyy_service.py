@@ -7,6 +7,7 @@ def get_auth_header():
     encoded_credentials = base64.b64encode(credentials.encode()).decode()
     return {'Authorization': f'Basic {encoded_credentials}'}
 
+
 def send_image_to_abbyy(image_path):
     with open(image_path, 'rb') as file:
         files = {'file': file}
